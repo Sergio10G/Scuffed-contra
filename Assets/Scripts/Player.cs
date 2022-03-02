@@ -10,9 +10,11 @@ public class Player : MonoBehaviour
     private Vector3 velocity_;
     private bool is_jumping_;
     private bool is_firing_;
+    private bool is_loaded_;
     private GameObject camera_;
     private Transform shooting_point_;
 
+    public float bullet_force_ = 50;
     public float speed_;
     public float jump_force_;
     public float gravity_;
@@ -50,6 +52,7 @@ public class Player : MonoBehaviour
         input_.PlayerKeyboard.Fire.performed += fire_performed =>
         {
             is_firing_ = fire_performed.ReadValueAsButton();
+            is_loaded_ = true;
         };
 
         input_.PlayerKeyboard.Fire.canceled += fire_cancel =>
@@ -91,8 +94,15 @@ public class Player : MonoBehaviour
         //camera_.transform.Translate(velocity_ * Time.deltaTime);
 
         if (is_firing_)
-        {
-            Instantiate(bullet_, shooting_point_.position, Quaternion.identity);
+        { 
+            if (is_loaded_)
+            {
+                GameObject bullet = Instantiate(bullet_, shooting_point_.position, Quaternion.identity);
+                bullet.AddComponent<BulletBehaviour>();
+                Rigidbody bullet_rb = bullet.GetComponent<Rigidbody>();
+                bullet_rb.AddForce(gameObject.transform.forward * bullet_force_, ForceMode.Impulse);
+            }
+            is_loaded_ = false;
         }
 
     }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IHittable
 {
     private CharacterController controller_;
     private InputController input_;
@@ -13,23 +13,26 @@ public class Player : MonoBehaviour
     private bool is_loaded_;
     private GameObject camera_;
     private Transform shooting_point_;
+    private Gun gun_;
 
     public float bullet_force_ = 50;
+    public float health_;
     public float speed_;
     public float jump_force_;
     public float gravity_;
-    public GameObject bullet_;
+    public GameObject bullet_pool_;
 
     private void Awake()
     {
         camera_ = GameObject.FindGameObjectWithTag("MainCamera");
         input_ = new InputController();
-        shooting_point_ = GameObject.Find("ShootingPoint").transform;
+        shooting_point_ = transform.Find("ShootingPoint");
+        gun_ = new Gun(shooting_point_, bullet_pool_, bullet_force_, 20, 0);
+        health_ = 100;
 
         input_.PlayerKeyboard.Movement.performed += move_performed =>
         {
             movement_ = move_performed.ReadValue<Vector2>();
-            Debug.Log("Move: " + movement_);
         };
 
         input_.PlayerKeyboard.Movement.canceled += move_cancel =>
@@ -40,13 +43,11 @@ public class Player : MonoBehaviour
         input_.PlayerKeyboard.Jump.performed += jump_performed =>
         {
             is_jumping_ = jump_performed.ReadValueAsButton();
-            Debug.Log("Jump: " + is_jumping_);
         };
 
         input_.PlayerKeyboard.Jump.canceled += jump_cancel =>
         {
             is_jumping_ = jump_cancel.ReadValueAsButton();
-            Debug.Log("Jump: " + is_jumping_);
         };
 
         input_.PlayerKeyboard.Fire.performed += fire_performed =>
@@ -97,13 +98,22 @@ public class Player : MonoBehaviour
         { 
             if (is_loaded_)
             {
-                GameObject bullet = Instantiate(bullet_, shooting_point_.position, Quaternion.identity);
-                bullet.AddComponent<BulletBehaviour>();
-                Rigidbody bullet_rb = bullet.GetComponent<Rigidbody>();
-                bullet_rb.AddForce(gameObject.transform.forward * bullet_force_, ForceMode.Impulse);
+                gun_.Shoot(gameObject.transform.forward);
             }
             is_loaded_ = false;
         }
 
+    }
+
+    public float takeDamage(float dmg)
+    {
+        if (health_ > dmg)
+        {
+            health_ -= dmg;
+            Debug.Log("Player health: " + health_);
+            return health_;
+        }
+        gameObject.SetActive(false);
+        return 0;
     }
 }

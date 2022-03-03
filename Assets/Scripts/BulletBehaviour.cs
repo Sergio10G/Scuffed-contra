@@ -5,17 +5,19 @@ using UnityEngine;
 public class BulletBehaviour : MonoBehaviour
 {
     private float start_time_;
-    public float lifespan_;
+    public int shooter_id = -1;
+    public float lifespan_ = 1;
+    public float damage_;
 
     private void Awake()
     {
-        lifespan_ = 1;
+
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        start_time_ = Time.time;
+        UpdateTime();
     }
 
     // Update is called once per frame
@@ -23,7 +25,12 @@ public class BulletBehaviour : MonoBehaviour
     {
         if (Time.time - start_time_ > lifespan_)
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
+    }
+
+    public void UpdateTime()
+    {
+        start_time_ = Time.time;
     }
 }

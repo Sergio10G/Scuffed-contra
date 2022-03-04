@@ -35,7 +35,7 @@ public class Hitbox : MonoBehaviour
             if (bb.shooter_id != parent_id_)
             {
                 IHittable p = parent_.GetComponent<IHittable>();
-                p.takeDamage(bb.damage_);
+                p.takeDamage(bb.damage);
                 other.gameObject.SetActive(false);
             }
         }

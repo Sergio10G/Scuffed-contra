@@ -29,7 +29,16 @@ public class PrefabPool : MonoBehaviour
                 return elementPoolList_[i];
             }
         }
-        GameObject obj = (GameObject)Instantiate(goPrefab_);
+        return null;
+    }
+
+    public GameObject GetPoolObjectAdaptative()
+    {
+        GameObject obj = GetPoolObject();
+        if (obj != null)
+            return obj;
+        obj = (GameObject)Instantiate(goPrefab_);
+        obj.SetActive(false);
         elementPoolList_.Add(obj);
         return obj;
     }

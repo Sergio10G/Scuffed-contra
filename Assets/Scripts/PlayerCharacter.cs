@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour, IHittable
+public class PlayerCharacter : MonoBehaviour, IHittable
 {
     private CharacterController controller_;
     private InputController input_;
@@ -10,26 +10,62 @@ public class Player : MonoBehaviour, IHittable
     private Vector3 velocity_;
     private bool is_jumping_;
     private bool is_firing_;
-    private bool is_loaded_;
-    private GameObject camera_;
-    private Transform shooting_point_;
-    private Gun gun_;
 
+    private GameObject camera_;
+
+    public float speed_ = 10;
+    public float jump_force_ = 3;
+    public float gravity_ = 15;
     public float bullet_force_ = 50;
-    public float health_;
-    public float speed_;
-    public float jump_force_;
-    public float gravity_;
     public GameObject bullet_pool_;
+
+    private float _health;
+    private float _damage;
+    private Gun _gun;
+
+    public float health
+    {
+        get { return _health; }
+        set
+        {
+            _health = value;
+            if (_health == 0)
+                gameObject.SetActive(false);
+        }
+    }
+
+    public float damage
+    {
+        get { return _damage; }
+        set
+        {
+            _damage = value;
+
+            if (gun != null)
+                gun.bullet_dmg_ = damage;
+        }
+    }
+
+    public Gun gun
+    {
+        get { return _gun; }
+        set
+        {
+            _gun = value;
+
+            // OnGunChange stuff
+        }
+    }
 
     private void Awake()
     {
+        health = 100;
+        damage = 20;
+        bullet_pool_ = GameObject.Find("BulletPool");
         camera_ = GameObject.FindGameObjectWithTag("MainCamera");
+        gun = new Gun(transform.Find("ShootingPoint"), bullet_pool_, bullet_force_, damage, 0);
         input_ = new InputController();
-        shooting_point_ = transform.Find("ShootingPoint");
-        gun_ = new Gun(shooting_point_, bullet_pool_, bullet_force_, 20, 0);
-        health_ = 100;
-
+        
         input_.PlayerKeyboard.Movement.performed += move_performed =>
         {
             movement_ = move_performed.ReadValue<Vector2>();
@@ -53,16 +89,10 @@ public class Player : MonoBehaviour, IHittable
         input_.PlayerKeyboard.Fire.performed += fire_performed =>
         {
             is_firing_ = fire_performed.ReadValueAsButton();
-            is_loaded_ = true;
-        };
-
-        input_.PlayerKeyboard.Fire.canceled += fire_cancel =>
-        {
-            is_firing_ = false;
         };
     }
 
-    void Start()
+    private void Start()
     {
         controller_ = gameObject.GetComponent<CharacterController>();
         input_.PlayerKeyboard.Enable();
@@ -78,7 +108,7 @@ public class Player : MonoBehaviour, IHittable
 
         Vector3 move = new Vector3(movement_.x, 0.0f, 0.0f);
         controller_.Move(move * Time.deltaTime * speed_);
-        camera_.transform.Translate(move * Time.deltaTime * speed_);
+        camera_.transform.Translate(new Vector3(12 + gameObject.transform.position.x - camera_.transform.position.x, 0, 0) * Time.deltaTime * speed_);
 
         if (move != Vector3.zero)
         {
@@ -92,28 +122,23 @@ public class Player : MonoBehaviour, IHittable
 
         velocity_.y += -gravity_ * Time.deltaTime;
         controller_.Move(velocity_ * Time.deltaTime);
-        //camera_.transform.Translate(velocity_ * Time.deltaTime);
 
         if (is_firing_)
-        { 
-            if (is_loaded_)
-            {
-                gun_.Shoot(gameObject.transform.forward);
-            }
-            is_loaded_ = false;
+        {
+            gun.Shoot(gameObject.transform.forward);
+            is_firing_ = false;
         }
 
     }
 
     public float takeDamage(float dmg)
     {
-        if (health_ > dmg)
+        if (health > dmg)
         {
-            health_ -= dmg;
-            Debug.Log("Player health: " + health_);
-            return health_;
+            health -= dmg;
+            return health;
         }
-        gameObject.SetActive(false);
+        health = 0;
         return 0;
     }
 }

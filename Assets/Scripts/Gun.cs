@@ -22,12 +22,12 @@ public class Gun
 
     public void Shoot(Vector3 direction) 
     {
-        GameObject bullet = bullet_pool_.GetComponent<PrefabPool>().GetPoolObject();
+        GameObject bullet = bullet_pool_.GetComponent<PrefabPool>().GetPoolObjectAdaptative();
         bullet.SetActive(true);
         bullet.transform.position = shooting_point_.position;
-        bullet.GetComponent<BulletBehaviour>().UpdateTime();
         bullet.GetComponent<BulletBehaviour>().shooter_id = parent_id_;
-        bullet.GetComponent<BulletBehaviour>().damage_ = bullet_dmg_;
+        bullet.GetComponent<BulletBehaviour>().damage = bullet_dmg_;
+        bullet.GetComponent<BulletBehaviour>().UpdateTime();
         Rigidbody bullet_rb = bullet.GetComponent<Rigidbody>();
         bullet_rb.velocity = Vector3.zero;
         bullet_rb.angularVelocity = Vector3.zero;

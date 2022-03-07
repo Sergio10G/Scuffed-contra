@@ -7,7 +7,7 @@ public class BulletBehaviour : MonoBehaviour
     private Vector3 initial_scale_;
     private float start_time_;
     public int shooter_id = -1;
-    public float lifespan_ = 1;
+    public float lifespan_ = 0.8f;
     
     
     private float _damage;
@@ -28,13 +28,11 @@ public class BulletBehaviour : MonoBehaviour
         initial_scale_ = transform.localScale;
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         UpdateTime();
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Time.time - start_time_ > lifespan_)

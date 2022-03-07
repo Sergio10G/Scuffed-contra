@@ -8,7 +8,6 @@ public class PrefabPool : MonoBehaviour
     public int poolMaxSize_;
     List<GameObject> elementPoolList_;
 
-    // Start is called before the first frame update
     void Start()
     {
         elementPoolList_ = new List<GameObject>();

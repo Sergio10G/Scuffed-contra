@@ -4,19 +4,20 @@ using UnityEngine;
 
 public class PlayerCharacter : MonoBehaviour, IHittable
 {
+    private GameManager gm_;
     private CharacterController controller_;
     private InputController input_;
     private Vector2 movement_;
     private Vector3 velocity_;
     private bool is_jumping_;
     private bool is_firing_;
-
-    private GameObject camera_;
+    public bool is_phasing_ = false;
 
     public float speed_ = 10;
     public float jump_force_ = 3;
     public float gravity_ = 15;
     public float bullet_force_ = 50;
+    public float max_health_ = 100;
     public GameObject bullet_pool_;
 
     private float _health;
@@ -29,8 +30,14 @@ public class PlayerCharacter : MonoBehaviour, IHittable
         set
         {
             _health = value;
+            if (_health > max_health_)
+                _health = max_health_;
+            gm_.RefreshHealth();
             if (_health == 0)
+            {
+                gm_.playerDied();
                 gameObject.SetActive(false);
+            }
         }
     }
 
@@ -59,10 +66,10 @@ public class PlayerCharacter : MonoBehaviour, IHittable
 
     private void Awake()
     {
-        health = 100;
+        gm_ = GameObject.Find("GameManager").GetComponent<GameManager>();
+        _health = 100;
         damage = 20;
         bullet_pool_ = GameObject.Find("BulletPool");
-        camera_ = GameObject.FindGameObjectWithTag("MainCamera");
         gun = new Gun(transform.Find("ShootingPoint"), bullet_pool_, bullet_force_, damage, 0);
         input_ = new InputController();
         
@@ -95,7 +102,7 @@ public class PlayerCharacter : MonoBehaviour, IHittable
     private void Start()
     {
         controller_ = gameObject.GetComponent<CharacterController>();
-        input_.PlayerKeyboard.Enable();
+        TogglePlayerKeyboard(true);
     }
 
     void Update()
@@ -108,7 +115,6 @@ public class PlayerCharacter : MonoBehaviour, IHittable
 
         Vector3 move = new Vector3(movement_.x, 0.0f, 0.0f);
         controller_.Move(move * Time.deltaTime * speed_);
-        camera_.transform.Translate(new Vector3(12 + gameObject.transform.position.x - camera_.transform.position.x, 0, 0) * Time.deltaTime * speed_);
 
         if (move != Vector3.zero)
         {
@@ -123,12 +129,29 @@ public class PlayerCharacter : MonoBehaviour, IHittable
         velocity_.y += -gravity_ * Time.deltaTime;
         controller_.Move(velocity_ * Time.deltaTime);
 
+        if (is_jumping_ || movement_.y < 0)
+        {
+            is_phasing_ = true;
+        }
+        else
+        {
+            is_phasing_ = false;
+        }
+
         if (is_firing_)
         {
             gun.Shoot(gameObject.transform.forward);
             is_firing_ = false;
         }
 
+    }
+
+    public void TogglePlayerKeyboard(bool toggle)
+    {
+        if (toggle)
+            input_.PlayerKeyboard.Enable();
+        else
+            input_.PlayerKeyboard.Disable();
     }
 
     public float takeDamage(float dmg)

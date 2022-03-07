@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class TurretCharacter : MonoBehaviour, IHittable
 {
+    private GameManager gm_;
     private GameObject bullet_pool_;
     private GameObject head_;
     private Transform shooting_point_;
@@ -13,6 +14,7 @@ public class TurretCharacter : MonoBehaviour, IHittable
 
     private float _health;
     private float _damage;
+    private float shooting_radius_;
     private Gun _gun;
 
     public float shooting_period_ = 1;
@@ -26,6 +28,7 @@ public class TurretCharacter : MonoBehaviour, IHittable
             _health = value;
             if (_health == 0)
             {
+                gm_.score += 10;
                 gameObject.SetActive(false);
             }
         }
@@ -56,6 +59,8 @@ public class TurretCharacter : MonoBehaviour, IHittable
 
     private void Awake()
     {
+        gm_ = GameObject.Find("GameManager").GetComponent<GameManager>();
+        shooting_radius_ = 32;
         health = 100;
         damage = 12;
         head_ = gameObject.transform.Find("Head").gameObject;
@@ -74,7 +79,7 @@ public class TurretCharacter : MonoBehaviour, IHittable
     {
         Vector3 look_direction = new Vector3(player_.transform.position.x - transform.position.x, player_.transform.position.y - transform.position.y - 1, 0.0f);
         head_.transform.forward = look_direction.normalized;
-        if (Time.time - last_shot_time_ > shooting_period_)
+        if (Mathf.Abs(transform.position.x - player_.transform.position.x) <= shooting_radius_ && Time.time - last_shot_time_ > shooting_period_)
         {
             gun.Shoot(head_.transform.forward);
             last_shot_time_ = Time.time;

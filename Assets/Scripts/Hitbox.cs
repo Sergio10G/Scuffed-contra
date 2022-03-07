@@ -16,12 +16,11 @@ public class Hitbox : MonoBehaviour
             parent_id_ = 1;
     }
 
-    // Start is called before the first frame update
     void Start()
     {
+
     }
 
-    // Update is called once per frame
     void Update()
     {
         
@@ -37,6 +36,21 @@ public class Hitbox : MonoBehaviour
                 IHittable p = parent_.GetComponent<IHittable>();
                 p.takeDamage(bb.damage);
                 other.gameObject.SetActive(false);
+            }
+        }
+        
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (parent_.tag == "Player" && other.gameObject.tag == "Enemy")
+        {
+            EnemyCharacter ec = other.gameObject.GetComponent<EnemyCharacter>();
+            if (ec.ready_to_hit_)
+            {
+                ec.ready_to_hit_ = false;
+                IHittable p = parent_.GetComponent<IHittable>();
+                p.takeDamage(ec.damage);
             }
         }
     }

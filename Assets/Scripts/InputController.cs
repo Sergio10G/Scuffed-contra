@@ -53,6 +53,15 @@ public partial class @InputController : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Dash"",
+                    ""type"": ""Button"",
+                    ""id"": ""75eb653f-104a-4335-a7d0-606d34b9c4b3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -132,6 +141,17 @@ public partial class @InputController : IInputActionCollection2, IDisposable
                     ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2f4d4570-8780-4a20-8e12-6455a3f13703"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Dash"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -143,6 +163,7 @@ public partial class @InputController : IInputActionCollection2, IDisposable
         m_PlayerKeyboard_Jump = m_PlayerKeyboard.FindAction("Jump", throwIfNotFound: true);
         m_PlayerKeyboard_Fire = m_PlayerKeyboard.FindAction("Fire", throwIfNotFound: true);
         m_PlayerKeyboard_Movement = m_PlayerKeyboard.FindAction("Movement", throwIfNotFound: true);
+        m_PlayerKeyboard_Dash = m_PlayerKeyboard.FindAction("Dash", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -205,6 +226,7 @@ public partial class @InputController : IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerKeyboard_Jump;
     private readonly InputAction m_PlayerKeyboard_Fire;
     private readonly InputAction m_PlayerKeyboard_Movement;
+    private readonly InputAction m_PlayerKeyboard_Dash;
     public struct PlayerKeyboardActions
     {
         private @InputController m_Wrapper;
@@ -212,6 +234,7 @@ public partial class @InputController : IInputActionCollection2, IDisposable
         public InputAction @Jump => m_Wrapper.m_PlayerKeyboard_Jump;
         public InputAction @Fire => m_Wrapper.m_PlayerKeyboard_Fire;
         public InputAction @Movement => m_Wrapper.m_PlayerKeyboard_Movement;
+        public InputAction @Dash => m_Wrapper.m_PlayerKeyboard_Dash;
         public InputActionMap Get() { return m_Wrapper.m_PlayerKeyboard; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -230,6 +253,9 @@ public partial class @InputController : IInputActionCollection2, IDisposable
                 @Movement.started -= m_Wrapper.m_PlayerKeyboardActionsCallbackInterface.OnMovement;
                 @Movement.performed -= m_Wrapper.m_PlayerKeyboardActionsCallbackInterface.OnMovement;
                 @Movement.canceled -= m_Wrapper.m_PlayerKeyboardActionsCallbackInterface.OnMovement;
+                @Dash.started -= m_Wrapper.m_PlayerKeyboardActionsCallbackInterface.OnDash;
+                @Dash.performed -= m_Wrapper.m_PlayerKeyboardActionsCallbackInterface.OnDash;
+                @Dash.canceled -= m_Wrapper.m_PlayerKeyboardActionsCallbackInterface.OnDash;
             }
             m_Wrapper.m_PlayerKeyboardActionsCallbackInterface = instance;
             if (instance != null)
@@ -243,6 +269,9 @@ public partial class @InputController : IInputActionCollection2, IDisposable
                 @Movement.started += instance.OnMovement;
                 @Movement.performed += instance.OnMovement;
                 @Movement.canceled += instance.OnMovement;
+                @Dash.started += instance.OnDash;
+                @Dash.performed += instance.OnDash;
+                @Dash.canceled += instance.OnDash;
             }
         }
     }
@@ -252,5 +281,6 @@ public partial class @InputController : IInputActionCollection2, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnFire(InputAction.CallbackContext context);
         void OnMovement(InputAction.CallbackContext context);
+        void OnDash(InputAction.CallbackContext context);
     }
 }

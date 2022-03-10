@@ -88,7 +88,7 @@ public class GameManager : MonoBehaviour
             return;
         }
         instance_ = this;
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
         Init();
     }
 
